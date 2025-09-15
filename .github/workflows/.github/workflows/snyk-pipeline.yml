@@ -1,0 +1,36 @@
+name: Snyk Security Scans
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Snyk
+      run: |
+        npm install -g snyk
+
+    - name: Snyk Open Source Scan (Dependencies)
+      run: |
+        snyk test
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+    - name: Snyk Container Scan
+      run: |
+        snyk container test bkimminich/juice-shop:v15.0.0 --file=Dockerfile
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+    - name: Snyk IaC Scan
+      run: |
+        snyk iac test main.tf
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
